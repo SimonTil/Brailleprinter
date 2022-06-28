@@ -1,7 +1,6 @@
+![](https://github.com/SimonTil/Brailleprinter/blob/main/Images/Color%20schemes/Brailleprinter.png)
 # Project brailleprinter
 _Versie 1.0 door Simon Tillema_
-
-_Laatste update: 21-06-2021_
 
 Nederland kent zo'n 250.000 mensen met een visuele beperking. Ongeveer 3000 mensen gebruiken braille om te communiceren.
 Tegenwoordig zijn de digitale middelen voor deze groep mensen enorm, waardoor braille op papier niet veel meer voorkomt.
