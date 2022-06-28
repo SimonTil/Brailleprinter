@@ -216,14 +216,14 @@
             // 
             this.MI_print.Name = "MI_print";
             this.MI_print.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
-            this.MI_print.Size = new System.Drawing.Size(224, 26);
+            this.MI_print.Size = new System.Drawing.Size(172, 26);
             this.MI_print.Text = "Print";
             this.MI_print.Click += new System.EventHandler(this.MI_print_Click);
             // 
             // MI_converteren
             // 
             this.MI_converteren.Name = "MI_converteren";
-            this.MI_converteren.Size = new System.Drawing.Size(224, 26);
+            this.MI_converteren.Size = new System.Drawing.Size(172, 26);
             this.MI_converteren.Text = "Converteren";
             this.MI_converteren.Click += new System.EventHandler(this.MI_converteren_Click);
             // 
@@ -289,21 +289,22 @@
             this.TB_input.Location = new System.Drawing.Point(0, 24);
             this.TB_input.Margin = new System.Windows.Forms.Padding(4);
             this.TB_input.Name = "TB_input";
-            this.TB_input.Size = new System.Drawing.Size(529, 517);
+            this.TB_input.Size = new System.Drawing.Size(497, 517);
             this.TB_input.TabIndex = 0;
             this.TB_input.Text = "";
             this.TB_input.TextChanged += new System.EventHandler(this.TB_input_TextChanged);
             // 
             // TB_preview
             // 
+            this.TB_preview.BackColor = System.Drawing.SystemColors.Window;
             this.TB_preview.Dock = System.Windows.Forms.DockStyle.Right;
             this.TB_preview.Font = new System.Drawing.Font("Consolas", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TB_preview.Location = new System.Drawing.Point(537, 24);
+            this.TB_preview.Location = new System.Drawing.Point(505, 24);
             this.TB_preview.Margin = new System.Windows.Forms.Padding(4);
             this.TB_preview.Name = "TB_preview";
             this.TB_preview.ReadOnly = true;
             this.TB_preview.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
-            this.TB_preview.Size = new System.Drawing.Size(401, 520);
+            this.TB_preview.Size = new System.Drawing.Size(433, 520);
             this.TB_preview.TabIndex = 2;
             this.TB_preview.Text = "";
             // 

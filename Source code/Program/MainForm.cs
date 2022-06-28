@@ -333,7 +333,7 @@ namespace Braille_plotter
 
         private void MI_onlineHelp_Click(object sender, EventArgs e) // AT FINISH
         {
-            Process.Start("https://github.com/SimonTil/BraillePrinter/blob/main/Help");
+            Process.Start("https://github.com/SimonTil/Brailleprinter");
         }
         private void MI_shortcuts_Click(object sender, EventArgs e) // DONE
         {
@@ -455,7 +455,7 @@ namespace Braille_plotter
         private void MI_helpDevelop_Click(object sender, EventArgs e) // AT FINISH
         {
             var result = MessageBox.Show("Wilt u helpen met de ontwikkeling van de Brailleprinter?\nKlik dan op OK om door te gaan naar de Github repository.", "Braille printer", MessageBoxButtons.OKCancel);
-            if (result == DialogResult.OK) Process.Start("https://github.com/SimonTil/BraillePrinter");
+            if (result == DialogResult.OK) Process.Start("https://github.com/SimonTil/Brailleprinter");
         }
         #endregion
 
@@ -515,7 +515,7 @@ namespace Braille_plotter
                         case "p": result = 0b00_001111; break;
                         case "q": result = 0b00_011111; break;
                         case "r": result = 0b00_010111; break;
-                        case "s": result = 0b00_001011; break;
+                        case "s": result = 0b00_001110; break;
                         case "t": result = 0b00_011110; break;
                         case "u": result = 0b00_100101; break;
                         case "v": result = 0b00_100111; break;
@@ -579,7 +579,8 @@ namespace Braille_plotter
                         case "]": result = 0b00_111110; break;
                         case "é":
                         case "%": result = 0b00_111111; break;
-                        default: result = 0; break;
+                        case "\n":result = 0b01_000000; break;
+                        //default: result = 0; break;
                     }
                     converted.Add(result);
                 }
@@ -607,7 +608,7 @@ namespace Braille_plotter
                 {
                     if (input[i][j] == 0b01_000000)
                     {
-                        output += '\n';
+                        output += Convert.ToChar(10);
                     }
                     else if (input[i][j] < 0b01_000000)
                     {
@@ -618,24 +619,9 @@ namespace Braille_plotter
             return output;
         }
 
-
-        //private String convertToBraille(String input) // DONE
-        //{
-        //    if (String.IsNullOrEmpty(input)) return null;
-
-        //    String[] inputSplitted = input.Split('\n');
-        //    String[] output = new string[inputSplitted.Length];
-        //    for (int i = 0; i < inputSplitted.Length; i++)
-        //    { 
-        //        if (String.IsNullOrEmpty(inputSplitted[i])) continue;
-        //        output[i] += convertLineToBraille(inputSplitted[i]);
-        //    }
-        //    return String.Join("\n", output);
-        //}
-
         private String convertLineToBraille(String input)
         {
-            int linewidth = 28;
+            int linewidth = 31;
             // Replace caps
             String output = replaceCaps(input);
 
@@ -813,126 +799,6 @@ namespace Braille_plotter
                         }
                     }
                 }
-                //// Line has words and next word is entire caps or number
-                //if (words.Length > 0 && permanentCapModus(words[i]))
-                //{
-                //    // word suits for permanentCapModus, has no permanentCapsFlag
-                //    if (!permanentCapsFlag)
-                //    {
-                //        // Word suits for singleWordCapModus
-                //        if (singleCapModus(words[i]))
-                //        {
-                //            // Word is longer than 1 letter
-                //            if (words[i].Length > 1)
-                //            {
-                //                words[i] = "P" + words[i].ToLower();
-                //            }
-                //            // Word is exactly 1 letter
-                //            else if (words[i].Length == 1)
-                //            {
-                //                words[i] = "C" + words[i].ToLower();
-                //                continue;
-                //            }
-                //            // Word is null
-                //            else
-                //            {
-                //                continue;
-                //            }
-
-                //            // Check if next words are caps-only to enable permanentCapsFlag
-                //            if (i + 2 < words.Length)
-                //            {
-                //                // Check following words to not be numbers only or null
-                //                bool numberOrNull = true;
-                //                if (isNumber(words[i + 1])) {
-                //                    for (int j = i + 1; j < words.Length; j++)
-                //                    {
-                //                        numberOrNull = isNumber(words[j]) ? true : false;
-                //                        if (!numberOrNull) break;
-                //                    }
-                //                }
-                //                else
-                //                {
-                //                    numberOrNull = false;
-                //                }
-
-                //                // Following 2 words not number or null, enable permanentCapsFlag
-                //                if (permanentCapModus(words[i + 1]) && permanentCapModus(words[i + 2]))
-                //                {
-                //                    permanentCapsFlag = true;
-                //                    words[i] = "P" + words[i];
-                //                }
-                //            }
-                //        }
-                //        // Word does not suit for singleWordCapModus (thus is probably number only)
-                //        else
-                //        {
-                //            // Check if next words are suitable for permanentCapsModus
-                //            //if (i + 2 < words.Length && permanentCapModus(words[i + 1]) && permanentCapModus(words[i + 2]))
-                //            //{
-                //            //    words[i] = "PP" + words[i].ToLower();
-                //            //    permanentCapsFlag = true;
-                //            //}
-                //            //else
-                //            //{
-                //                words[i] = convertCapsInWord(words[i]);
-                //            //}
-                //        }
-                //    }
-                //    // word suits for permanentCapModus, has already permanentCapsFlag
-                //    else // permanentCapsFlag == true
-                //    {
-                //        if (i + 1 < words.Length)
-                //        {
-                //            // Check if following words are only numbers or null
-                //            bool numberOrNull = true;
-                //            if (isNumber(words[i + 1]))
-                //            {
-                //                for (int j = i + 1; j < words.Length; j++)
-                //                {
-                //                    numberOrNull = isNumber(words[j]) ? true : false;
-                //                    if (!numberOrNull) break;
-                //                }
-                //            }
-                //            else
-                //            {
-                //                numberOrNull = false;
-                //            }
-
-                //            // Following words are only numbers or null
-                //            if (numberOrNull)
-                //            {
-                //                words[i] = "P" + words[i].ToLower();
-                //                permanentCapsFlag = false;
-                //            }
-                //            // Following words are not only numbers or null
-                //            else
-                //            {
-                //                if(!permanentCapModus(words[i + 1]))
-                //                {
-                //                    words[i] = "P" + words[i].ToLower();
-                //                    permanentCapsFlag = false;
-                //                }
-                //                else
-                //                {
-                //                    words[i] = words[i].ToLower();
-                //                }
-                //            }
-
-                //        }
-                //        // Last word in line
-                //        else
-                //        {
-                //            words[i] = "P" + words[i].ToLower();
-                //            permanentCapsFlag = false;
-                //        }
-                //    }
-                //}
-                //// Word not entire caps - convert single caps
-                //else if (words.Length > 0)
-                //{
-                //    words[i] = convertCapsInWord(words[i]);
-                //}
             }
             return string.Join(" ", words);
         }
@@ -1052,7 +918,7 @@ namespace Braille_plotter
             if (String.IsNullOrEmpty(input)) return null;
             int currentLineLength = 0;
 
-            // Split entire line to words, regels by enter, space or hyphen
+            // Split entire line to words, by enter, space, or hyphen
             string[] regelsString = Regex.Split(input, @"(?<=[\n\-\s])");
             string output = "";
 
