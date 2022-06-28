@@ -630,62 +630,6 @@ namespace Braille_plotter
         //    return String.Join("\n", output);
         //}
 
-        private String brailleToChars(String input)
-        {
-            String output = input;
-            String brailleAlphabet = "⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵";
-            for (int i = 0; i < output.Length; i++)
-            {
-                if ((int)output[i] >= 0x61 && (int)output[i] <= 0x7A)
-                {
-                    output = output.Replace(output[i], brailleAlphabet[output[i] - 0x61]);
-                }
-            }
-
-            // Convert tokens
-            output = output.Replace("A", "⠰");
-            output = output.Replace("C", "⠨");
-            output = output.Replace("K", "⠐");
-            output = output.Replace("N", "⠼");
-            output = output.Replace("O", "⠈");
-            output = output.Replace("P", "⠘");
-            output = output.Replace("R", "⠠");
-
-            // Convert special characters
-            output = output.Replace(' ', '⠀'); // convert to unicode braille SP
-            output = output.Replace(',', '⠂');
-            output = output.Replace('\x27', '⠄'); // single quotation mark
-            output = output.Replace(';', '⠆');
-            output = Regex.Replace(output, @"[í/]", "⠌");
-            output = output.Replace(':', '⠒');
-            output = output.Replace('*', '⠔');
-            output = Regex.Replace(output, @"[\+!]", "⠖");
-            output = Regex.Replace(output, @"[@ä]", "⠜");
-            output = output.Replace('â', '⠡');
-            output = Regex.Replace(output, @"[~\?]", "⠢");
-            output = output.Replace('ê', '⠣');
-            output = output.Replace('-', '⠤');
-            output = Regex.Replace(output, @"[\(×·]", "⠦");
-            output = output.Replace('î', '⠩');
-            output = output.Replace('ö', '⠪');
-            output = output.Replace('ë', '⠫');
-            output = Regex.Replace(output, @"[ó§\^]", "⠬");
-            output = output.Replace('è', '⠮');
-            output = output.Replace('&', '⠯');
-            output = output.Replace('û', '⠱');
-            output = output.Replace('.', '⠲');
-            output = output.Replace('ü', '⠳');
-            output = Regex.Replace(output, @"[\(°]", "⠴");
-            //output = output.Replace('(', '⠴');
-            output = Regex.Replace(output, @"[\x22=]", "⠶");
-            output = Regex.Replace(output, @"[áà\[]", "⠷");
-            output = output.Replace('|', '⠹');
-            output = output.Replace('ï', '⠻');
-            output = Regex.Replace(output, @"[úù\]]", "⠾");
-            output = Regex.Replace(output, @"[é%]", "⠿");
-            return output;
-        }
-
         private String convertLineToBraille(String input)
         {
             int linewidth = 28;
