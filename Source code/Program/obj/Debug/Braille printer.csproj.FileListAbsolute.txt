@@ -9,3 +9,14 @@ C:\Users\simon\Documents\3D-printer\Braille printer\Source code\Program\obj\Debu
 C:\Users\simon\Documents\3D-printer\Braille printer\Source code\Program\obj\Debug\Braille printer.csproj.CoreCompileInputs.cache
 C:\Users\simon\Documents\3D-printer\Braille printer\Source code\Program\obj\Debug\Braille printer.exe
 C:\Users\simon\Documents\3D-printer\Braille printer\Source code\Program\obj\Debug\Braille printer.pdb
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\bin\Debug\Braille printer.exe.config
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\bin\Debug\Braille printer.exe
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\bin\Debug\Braille printer.pdb
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.csproj.AssemblyReference.cache
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.csproj.SuggestedBindingRedirects.cache
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille_plotter.MainForm.resources
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille_printer.Properties.Resources.resources
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.csproj.GenerateResource.cache
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.csproj.CoreCompileInputs.cache
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.exe
+C:\Users\simon\Documents\GitHub\Brailleprinter\Source code\Program\obj\Debug\Braille printer.pdb

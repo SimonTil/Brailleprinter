@@ -125,6 +125,7 @@ namespace Braille_plotter
 
         private void updateTitle() // DONE
         {
+            //this.Name = Path.GetFileNameWithoutExtension(filePath);
             this.Text = this.Name + titleSuffix;
             if (fileChanged) this.Text = "*" + this.Text;
         }
@@ -218,6 +219,7 @@ namespace Braille_plotter
                 {
                     File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
                     fileChanged = false;
+                    this.Name = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
                     updateTitle();
                     filePath = saveFileDialog.FileName;
                 }
@@ -236,6 +238,7 @@ namespace Braille_plotter
             {
                 File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
                 fileChanged = false;
+                this.Name = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
                 updateTitle();
                 filePath = saveFileDialog.FileName;
             }
