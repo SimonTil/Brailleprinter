@@ -45,5 +45,4 @@ een e-mail aan [simontillema@gmail.com](mailto:simontillema@gmail.com), of op an
 
 ## Met dank aan
 Mijn speciale dank gaat uit naar mijn vriendin Anne die mij geweldig heeft gesteund in dit project.  
-Verder wil ik Michael bedanken die mij meerdere malen wist te motiveren om door te gaan.  
-Last but not least, a special thanks to my friend Martin, that came up with the idea of building a braille printer.
+Verder wil ik Michael bedanken die mij meerdere malen wist te motiveren om door te gaan.
