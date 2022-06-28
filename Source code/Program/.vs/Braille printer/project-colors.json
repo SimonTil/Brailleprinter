@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "6d5fda50-b28f-4380-b82d-047b654e6dca": {
+      "ProjectGuid": "6d5fda50-b28f-4380-b82d-047b654e6dca",
+      "DisplayName": "Braille printer",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
