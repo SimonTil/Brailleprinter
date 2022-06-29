@@ -3,7 +3,7 @@
 Material: PLA  
 Use your own settings, but for best results, see following notes:
 
-| File                     | Quantity | Infill    | Color     | Supports required?               | Notes                                          |
+| **File**                  | **Quantity** | **Infill** | **Color** | **Supports required?**     | **Notes**                                      |
 |--------------------------|----------|-----------|-----------|----------------------------------|------------------------------------------------|
 | ButtonF.STL              | 1        | 100%      | Dark grey | No                               | Print with 0.2mm nozzle, or use SLA printer    |
 | ButtonS.STL              | 1        | 100%      | Dark grey | No                               | Print with 0.2mm nozzle, or use SLA printer    |
