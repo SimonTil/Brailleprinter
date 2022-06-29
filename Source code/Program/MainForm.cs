@@ -297,15 +297,14 @@ namespace Braille_plotter
             if (!string.IsNullOrEmpty(TB_input.Text)) TB_input.SelectAll();
         }
         
-
         /*
          * How to convert:
-         * - Function convertToBraille(string) converts regular text into braille-numbers (List<int[]> type)
-         * - Function previewBraille(string) converts braille-numbers to unicode chars (string type), and previews in TB_preview
+         * - Function convertToBraille(string) converts regular text into braille-numbers (type: List<int[]>)
+         * - Function previewBraille(string) converts braille-numbers to unicode chars (type: string), and previews in TB_preview
          * 
-         * - MI_braille_Click checks whether printer is connected and enables MI_print_Click
+         * - MI_braille_Click checks whether printer is connected and enables sub-options
          * - MI_converteren_Click runs previewBraille(convertToBraille(string))
-         * - MI_print_Click runs previewBraille(convertToBraille(string)) and prints the output from convertToBraille(string) (List<int[]> type).
+         * - MI_print_Click runs previewBraille(convertToBraille(string)) and prints the output from convertToBraille(string) (type: List<int[]>).
          */
 
         private void MI_braille_Click(object sender, EventArgs e) // DONE
@@ -324,6 +323,11 @@ namespace Braille_plotter
         }
         private void MI_print_Click(object sender, EventArgs e)
         {
+            // Show text
+            string input = TB_input.Text;
+            TB_preview.Text = previewBraille(convertToChars(convertToBraille(input)));
+            List<int[]> output = convertToChars(convertToBraille(input));
+            // NEED HELP: print output item, wait for serial input, print next item
         }
         private void MI_converteren_Click(object sender, EventArgs e)
         {
@@ -333,7 +337,7 @@ namespace Braille_plotter
 
         private void MI_onlineHelp_Click(object sender, EventArgs e) // AT FINISH
         {
-            Process.Start("https://github.com/SimonTil/Brailleprinter");
+            Process.Start("https://github.com/SimonTil/Brailleprinter/blob/main/Gebruikershandleiding.docx");
         }
         private void MI_shortcuts_Click(object sender, EventArgs e) // DONE
         {
@@ -452,7 +456,7 @@ namespace Braille_plotter
 
                 }); // date
         }
-        private void MI_helpDevelop_Click(object sender, EventArgs e) // AT FINISH
+        private void MI_helpDevelop_Click(object sender, EventArgs e) // DONE
         {
             var result = MessageBox.Show("Wilt u helpen met de ontwikkeling van de Brailleprinter?\nKlik dan op OK om door te gaan naar de Github repository.", "Braille printer", MessageBoxButtons.OKCancel);
             if (result == DialogResult.OK) Process.Start("https://github.com/SimonTil/Brailleprinter");
