@@ -28,8 +28,6 @@ namespace Braille_plotter
         private string titleSuffix = " - Braille printer";
         private string headerBarName = "Braille printer";
         private string fileTypes = "Tekstbestanden (*.txt)|*.txt|Alle bestanden (*.*)|*.*";
-        private string port;
-        public SerialPort printer;
         #endregion
         #endregion
 
@@ -38,9 +36,7 @@ namespace Braille_plotter
         {
             this.FormClosing += new FormClosingEventHandler(CloseForm);
             this.Name = "Naamloos";
-            scanPorts();
         }
-
         private void CloseForm(object sender, FormClosingEventArgs e) // DONE
         {
             e.Cancel = true;
@@ -84,21 +80,6 @@ namespace Braille_plotter
 
         #region Severe Functions
         /* SEVERE FUNCTIONS */
-        private string scanPorts() // DONE
-        { // to add: functionality to either select port if multiple devices are connected or to scan for the right device.
-            string[] ports = SerialPort.GetPortNames();
-            Array.Sort(ports);
-            if (ports.Length > 0)
-            {
-                port = ports[0];
-            } 
-            else
-            {
-                port = null;
-            }
-            return port;
-        }
-        
         private void NewFile() // DONE
         {
             this.Name = "Naamloos";
@@ -108,7 +89,6 @@ namespace Braille_plotter
             fileChanged = false;
             filePath = null;
         }
-        
         private void OpenFile() // DONE
         {
             openFileDialog = new OpenFileDialog();
@@ -122,20 +102,22 @@ namespace Braille_plotter
                 updateTitle();
             }
         }
-
         private void updateTitle() // DONE
         {
             //this.Name = Path.GetFileNameWithoutExtension(filePath);
             this.Text = this.Name + titleSuffix;
             if (fileChanged) this.Text = "*" + this.Text;
         }
-
         private void TB_input_TextChanged(object sender, EventArgs e) // DONE
         {
             fileChanged = true;
             if (filePath == "" && String.IsNullOrEmpty(TB_input.Text)) fileChanged = false;
             updateTitle();
         }
+        //private void DataReceivedHandler(object sender, EventArgs e)
+        //{
+        //    dataSent = true;
+        //}
         #endregion
 
         #region UI handlers
@@ -309,25 +291,51 @@ namespace Braille_plotter
 
         private void MI_braille_Click(object sender, EventArgs e) // DONE
         {
-            scanPorts();
-            if (String.IsNullOrEmpty(TB_input.Text) == true)
-            {
-                MI_print.Enabled = false;
-                MI_converteren.Enabled = false;
-            }
-            else
-            {
-                MI_print.Enabled = !string.IsNullOrEmpty(port) ? true : false;
-                MI_converteren.Enabled = true;
-            }
+            MI_print.Enabled = (String.IsNullOrEmpty(TB_input.Text) == true) ? false : true;
+            MI_converteren.Enabled = (String.IsNullOrEmpty(TB_input.Text) == true) ? false : true;
         }
         private void MI_print_Click(object sender, EventArgs e)
         {
-            // Show text
-            string input = TB_input.Text;
-            TB_preview.Text = previewBraille(convertToChars(convertToBraille(input)));
-            List<int[]> output = convertToChars(convertToBraille(input));
-            // NEED HELP: print output item, wait for serial input, print next item
+            // Preview text
+            String input = TB_input.Text;
+            List<byte[]> output = convertToChars(convertToBraille(input));
+            TB_preview.Text = previewBraille(output);
+            
+            // Setup port
+            String printerPort = null;
+
+            List<String> listOfPorts = new List<String>(SerialPort.GetPortNames());
+
+            // Search for the correct port
+            for (int i = listOfPorts.Count - 1; i >= 0; i--)
+            {
+                SerialPort printer = new SerialPort(listOfPorts[i], 256000);
+                try
+                {
+                    printer.Open();
+                    printer.Close();
+                    printerPort = listOfPorts[i];
+                }
+                catch (Exception ex){
+                    listOfPorts.RemoveAt(i);
+                }
+            }
+
+            if (printerPort != null)
+            {
+                MessageBox.Show(printerPort);
+                // Run code!
+                SerialPort printer = new SerialPort(printerPort, 9600);
+                printer.Open();
+                MessageBox.Show("Open");
+                printer.Close();
+                MessageBox.Show("Closed");
+                printerPort = null;
+            }
+            else
+            {
+                MessageBox.Show("Printer niet verbonden!", "Braille printer");
+            }
         }
         private void MI_converteren_Click(object sender, EventArgs e)
         {
@@ -464,11 +472,6 @@ namespace Braille_plotter
         #endregion
 
         #region Functions to convert to braille
-        
-        // Step 1: convert line by line to braille
-        // Step 2: convert to braillechars
-
-
         // Split in lines, convert line by line and return as list
         private List<String> convertToBraille(String input)
         {
@@ -481,15 +484,14 @@ namespace Braille_plotter
             }
             return output;
         }
-
-        private List<int[]> convertToChars(List<String> input)
+        private List<byte[]> convertToChars(List<String> input)
         {
-            List<int[]> output = new List<int[]>();
+            List<byte[]> output = new List<byte[]>();
 
             for (int i = 0; i < input.Count; i++)
             {
                 // We're now looking at 1 line
-                List<int> converted = new List<int>();
+                List<byte> converted = new List<byte>();
 
                 String myString = "";
                 if (input[i] != null) myString = input[i].TrimEnd();
@@ -497,7 +499,7 @@ namespace Braille_plotter
                 for (int j = 0; j < myString.Length; j++)
                 {
                     // We're now looking at 1 character
-                    int result = 0;
+                    byte result = 0;
                     switch (myString.Substring(j, 1))
                     {
                         // Standard alphabet
@@ -602,8 +604,7 @@ namespace Braille_plotter
             }
             return output;
         }
-
-        private String previewBraille(List<int[]> input)
+        private String previewBraille(List<byte[]> input)
         {
             String output = "";
             for (int i = 0; i < input.Count; i++)
@@ -622,7 +623,6 @@ namespace Braille_plotter
             }
             return output;
         }
-
         private String convertLineToBraille(String input)
         {
             int linewidth = 31;
@@ -641,7 +641,6 @@ namespace Braille_plotter
             output = splitToLineLength(output, linewidth);
             return output;
         }
-
         private String replaceCaps(String input) // DONE
         {
             /* Rules regarding cap tokens:
@@ -806,7 +805,6 @@ namespace Braille_plotter
             }
             return string.Join(" ", words);
         }
-
         private String replaceNumbers(String input) // DONE
         {
             String Callback(Match match)
@@ -824,7 +822,6 @@ namespace Braille_plotter
             string output = Regex.Replace(input, pattern, Callback);
             return output;
         }
-        
         private String replaceSpecialCharacters(String input)
         {
             String output = "";
@@ -880,7 +877,6 @@ namespace Braille_plotter
             output = Regex.Replace(output, @"[ýÿ]", "y");
             return output;
         }
-
         private string removeUnknownCharacters(String input)
         {
             string output = "";
@@ -894,7 +890,6 @@ namespace Braille_plotter
             }
             return output;
         }
-
         private string replaceLongWords(string input, int linewidth) // DONE
         {
             // To do: add "N" before number after split
@@ -916,7 +911,6 @@ namespace Braille_plotter
             string output = string.Join(" ", words);
             return output;
         }
-
         private string splitToLineLength(string input, int linewidth)
         {
             if (String.IsNullOrEmpty(input)) return null;
