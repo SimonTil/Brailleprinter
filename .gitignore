@@ -1,6 +1,9 @@
+# ignore file formats:
 *.suo
 *.user
-_ReSharper.*
+*.exe
+*.pdb
+*.cache
 bin
 obj
 packages
