@@ -1,0 +1,15 @@
+Assembly order:
+
+1. Build the carriage.
+1.1. Screw the 3D-printed carriage on the linear block with 2pcs M3x5 and 2pcs M3x6.
+1.2. Push the printhead insert in the carriage. Push as far as possible. Eventually use a lighter to soften the plastic.
+1.3. Assemble and enter the pins. Make sure they can move free.
+1.4. 
+
+2. Build the frame.
+2.1. 
+
+3. Build the electronic box.
+3.1. Guide the carriage cable and stepper cable through the hole.
+3.2. Solder the carriage cable to the servo driver.
+3.3. Mount the servo driver with 2pcs M3x5.
