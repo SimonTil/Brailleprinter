@@ -296,7 +296,7 @@
             // 
             // TB_preview
             // 
-            this.TB_preview.BackColor = System.Drawing.SystemColors.Window;
+            this.TB_preview.BackColor = System.Drawing.SystemColors.Control;
             this.TB_preview.Dock = System.Windows.Forms.DockStyle.Right;
             this.TB_preview.Font = new System.Drawing.Font("Consolas", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TB_preview.Location = new System.Drawing.Point(505, 24);
