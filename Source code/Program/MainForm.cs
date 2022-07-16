@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Threading;
 #endregion
 
 namespace Braille_plotter
@@ -25,9 +26,13 @@ namespace Braille_plotter
         private OpenFileDialog openFileDialog;
         private bool fileChanged = false;
         private string filePath = "";
-        private string titleSuffix = " - Braille printer";
-        private string headerBarName = "Braille printer";
-        private string fileTypes = "Tekstbestanden (*.txt)|*.txt|Alle bestanden (*.*)|*.*";
+        private readonly string titleSuffix = " - Braille printer";
+        private readonly string headerBarName = "Braille printer";
+        private readonly string fileTypes = "Tekstbestanden (*.txt)|*.txt|Alle bestanden (*.*)|*.*";
+        private enum Status { cancelled, available, waiting }
+        private Status status = Status.available;
+        private bool timeOver = false;
+
         #endregion
         #endregion
 
@@ -62,8 +67,7 @@ namespace Braille_plotter
                 DialogResult result = MessageBox.Show("Wilt u de wijzigingen opslaan in " + this.Name + "?", headerBarName, MessageBoxButtons.YesNoCancel);
                 if (result == DialogResult.Yes)
                 {
-                    saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = fileTypes;
+                    saveFileDialog = new SaveFileDialog { Filter = fileTypes };
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
@@ -91,18 +95,17 @@ namespace Braille_plotter
         }
         private void OpenFile() // DONE
         {
-            openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = fileTypes;
+            openFileDialog = new OpenFileDialog { Filter = fileTypes };
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 this.TB_input.Text = File.ReadAllText(openFileDialog.FileName);
                 filePath = openFileDialog.FileName;
                 this.Name = Path.GetFileNameWithoutExtension(filePath);
                 fileChanged = false;
-                updateTitle();
+                UpdateTitle();
             }
         }
-        private void updateTitle() // DONE
+        private void UpdateTitle() // DONE
         {
             //this.Name = Path.GetFileNameWithoutExtension(filePath);
             this.Text = this.Name + titleSuffix;
@@ -112,12 +115,25 @@ namespace Braille_plotter
         {
             fileChanged = true;
             if (filePath == "" && String.IsNullOrEmpty(TB_input.Text)) fileChanged = false;
-            updateTitle();
+            UpdateTitle();
         }
-        //private void DataReceivedHandler(object sender, EventArgs e)
-        //{
-        //    dataSent = true;
-        //}
+        private void DataReceivedHandler(object sender, EventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+            String inData = sp.ReadExisting();
+            if (inData == "1")
+            {
+                status = Status.available;
+            }
+            else if (inData == "2")
+            {
+                status = Status.cancelled;
+            }
+        }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            timeOver = true;
+        }
         #endregion
 
         #region UI handlers
@@ -133,8 +149,7 @@ namespace Braille_plotter
                 var result = MessageBox.Show("Wilt u de wijzingingen opslaan in " + this.Name + "?", headerBarName, MessageBoxButtons.YesNoCancel);
                 if (result == DialogResult.Yes) // Save file
                 {
-                    saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = fileTypes;
+                    saveFileDialog = new SaveFileDialog { Filter = fileTypes };
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
@@ -171,8 +186,7 @@ namespace Braille_plotter
                 var result = MessageBox.Show("Wilt u de wijzigingen opslaan in " + this.Name + "?", headerBarName, MessageBoxButtons.YesNoCancel);
                 if (result == DialogResult.Yes)
                 {
-                    saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = fileTypes;
+                    saveFileDialog = new SaveFileDialog { Filter = fileTypes };
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
@@ -191,26 +205,24 @@ namespace Braille_plotter
             { // save without save-dialog
                 File.WriteAllText(filePath, this.TB_input.Text);
                 fileChanged = false;
-                updateTitle();
+                UpdateTitle();
             }
             else
             {
-                saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = fileTypes;
+                saveFileDialog = new SaveFileDialog{ Filter = fileTypes };
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
                     fileChanged = false;
                     this.Name = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
-                    updateTitle();
+                    UpdateTitle();
                     filePath = saveFileDialog.FileName;
                 }
             }
         }
         private void MI_saveAs_Click(object sender, EventArgs e) // DONE
         {
-            saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = fileTypes;
+            saveFileDialog = new SaveFileDialog { Filter = fileTypes };
             if (filePath != "")
             {
                 saveFileDialog.FileName = this.Name;
@@ -221,7 +233,7 @@ namespace Braille_plotter
                 File.WriteAllText(saveFileDialog.FileName, this.TB_input.Text);
                 fileChanged = false;
                 this.Name = Path.GetFileNameWithoutExtension(saveFileDialog.FileName);
-                updateTitle();
+                UpdateTitle();
                 filePath = saveFileDialog.FileName;
             }
         }
@@ -232,8 +244,7 @@ namespace Braille_plotter
                 var result = MessageBox.Show("Wilt u de wijzingingen opslaan in " + this.Name + "?", headerBarName, MessageBoxButtons.YesNoCancel);
                 if (result == DialogResult.Yes)
                 { // Save file
-                    saveFileDialog = new SaveFileDialog();
-                    saveFileDialog.Filter = fileTypes;
+                    saveFileDialog = new SaveFileDialog { Filter = fileTypes };
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         Application.Exit();
@@ -252,9 +263,9 @@ namespace Braille_plotter
 
         private void MI_edit_Click(object sender, EventArgs e) // DONE
         {
-            MI_cut.Enabled = !string.IsNullOrEmpty(TB_input.Text) ? true : false;
+            MI_cut.Enabled = !string.IsNullOrEmpty(TB_input.Text);
             MI_copy.Enabled = !string.IsNullOrWhiteSpace(TB_input.Text);
-            MI_paste.Enabled = Clipboard.GetDataObject().GetDataPresent(DataFormats.Text) == true ? true : false;
+            MI_paste.Enabled = Clipboard.GetDataObject().GetDataPresent(DataFormats.Text) == true;
         }
         private void MI_undo_Click(object sender, EventArgs e) // DONE
         {
@@ -291,22 +302,23 @@ namespace Braille_plotter
 
         private void MI_braille_Click(object sender, EventArgs e) // DONE
         {
-            MI_print.Enabled = (String.IsNullOrEmpty(TB_input.Text) == true) ? false : true;
-            MI_converteren.Enabled = (String.IsNullOrEmpty(TB_input.Text) == true) ? false : true;
+            MI_print.Enabled = String.IsNullOrEmpty(TB_input.Text) != true;
+            MI_converteren.Enabled = String.IsNullOrEmpty(TB_input.Text) != true;
         }
         private void MI_print_Click(object sender, EventArgs e)
         {
+            if (String.IsNullOrEmpty(TB_input.Text)) return;
+
             // Preview text
             String input = TB_input.Text;
-            List<byte[]> output = convertToChars(convertToBraille(input));
-            TB_preview.Text = previewBraille(output);
+            List<byte[]> output = ConvertToChars(ConvertToBraille(input));
+            TB_preview.Text = PreviewBraille(output);
             
             // Setup port
             String printerPort = null;
-
             List<String> listOfPorts = new List<String>(SerialPort.GetPortNames());
 
-            // Search for the correct port
+            // Scan ports
             for (int i = listOfPorts.Count - 1; i >= 0; i--)
             {
                 SerialPort printer = new SerialPort(listOfPorts[i], 256000);
@@ -316,20 +328,60 @@ namespace Braille_plotter
                     printer.Close();
                     printerPort = listOfPorts[i];
                 }
-                catch (Exception ex){
+                catch (Exception){
                     listOfPorts.RemoveAt(i);
                 }
             }
 
+            // Port found, send data
             if (printerPort != null)
             {
                 MessageBox.Show(printerPort);
                 // Run code!
                 SerialPort printer = new SerialPort(printerPort, 9600);
+                printer.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                 printer.Open();
-                MessageBox.Show("Open");
+                MessageBox.Show("Printer verbonden. Print begint nu!", "Braille printer");
+
+                // Send all text
+                for (int i = 0; i < output.Count; i++)
+                {
+                    // Set status to waiting
+                    status = Status.waiting;
+
+                    // Send 1 line to printer
+                    printer.Write(output[i], 0, output[i].Length);
+
+                    // Wait for feedback and continue or cancel
+                    var timer = new System.Windows.Forms.Timer { Interval = 120_000};
+                    timer.Tick += new EventHandler(Timer_Tick);
+                    timer.Start();
+                    while (true)
+                    {
+                        if (status == Status.available)
+                        {
+                            timer.Stop();
+                            break;
+                        }
+                        else if (status == Status.cancelled || timeOver)
+                        {
+                            printer.Close();
+                            MessageBox.Show("Printer ontkoppeld, printproces afgebroken!", "Braille printer");
+                            printerPort = null;
+                            timer.Stop();
+                            return;
+                        }
+                        else
+                        {
+                            // To prevent overheating
+                            Thread.Sleep(10);
+                        }
+                    }
+                }
+
                 printer.Close();
                 MessageBox.Show("Closed");
+
                 printerPort = null;
             }
             else
@@ -340,7 +392,7 @@ namespace Braille_plotter
         private void MI_converteren_Click(object sender, EventArgs e)
         {
             string input = TB_input.Text;
-            TB_preview.Text = previewBraille(convertToChars(convertToBraille(input)));
+            TB_preview.Text = PreviewBraille(ConvertToChars(ConvertToBraille(input)));
         }
 
         private void MI_onlineHelp_Click(object sender, EventArgs e) // AT FINISH
@@ -349,8 +401,7 @@ namespace Braille_plotter
         }
         private void MI_shortcuts_Click(object sender, EventArgs e) // DONE
         {
-            Form shortcutForm = new Form();
-            shortcutForm.Size = new Size(500, 500);
+            Form shortcutForm = new Form { Size = new Size(500, 500) };
             shortcutForm.FormBorderStyle = FormBorderStyle.FixedSingle;
             shortcutForm.MaximizeBox = false; shortcutForm.MinimizeBox = false;
             shortcutForm.StartPosition = FormStartPosition.CenterScreen;
@@ -404,10 +455,10 @@ namespace Braille_plotter
         }
         private void MI_about_Click(object sender, EventArgs e) // DONE
         {
-            Form aboutForm = new Form();
-            aboutForm.Size = new Size(300, 400);
+            Form aboutForm = new Form { Size = new Size(300, 400) };
             aboutForm.FormBorderStyle = FormBorderStyle.FixedSingle;
-            aboutForm.MaximizeBox = false; aboutForm.MinimizeBox = false;
+            aboutForm.MaximizeBox = false;
+            aboutForm.MinimizeBox = false;
             aboutForm.StartPosition = FormStartPosition.CenterScreen;
             aboutForm.ShowIcon = false;
             aboutForm.Text = "Over dit programma";
@@ -473,18 +524,18 @@ namespace Braille_plotter
 
         #region Functions to convert to braille
         // Split in lines, convert line by line and return as list
-        private List<String> convertToBraille(String input)
+        private List<String> ConvertToBraille(String input)
         {
             List<String> output = new List<String>();
 
             String[] inputSplitted = input.Split('\n');
             for (int i = 0; i < inputSplitted.Length; i++)
             {
-                output.Add(convertLineToBraille(inputSplitted[i]));
+                output.Add(ConvertLineToBraille(inputSplitted[i]));
             }
             return output;
         }
-        private List<byte[]> convertToChars(List<String> input)
+        private List<byte[]> ConvertToChars(List<String> input)
         {
             List<byte[]> output = new List<byte[]>();
 
@@ -604,7 +655,7 @@ namespace Braille_plotter
             }
             return output;
         }
-        private String previewBraille(List<byte[]> input)
+        private String PreviewBraille(List<byte[]> input)
         {
             String output = "";
             for (int i = 0; i < input.Count; i++)
@@ -623,25 +674,25 @@ namespace Braille_plotter
             }
             return output;
         }
-        private String convertLineToBraille(String input)
+        private String ConvertLineToBraille(String input)
         {
             int linewidth = 31;
             // Replace caps
-            String output = replaceCaps(input);
+            String output = ReplaceCaps(input);
 
             // Replace number
-            output = replaceNumbers(output);
+            output = ReplaceNumbers(output);
 
             // Replace special characters
-            output = replaceSpecialCharacters(output);
-            output = removeUnknownCharacters(output);
+            output = ReplaceSpecialCharacters(output);
+            output = RemoveUnknownCharacters(output);
 
             // Cut to max linewidth
-            output = replaceLongWords(output, linewidth);
-            output = splitToLineLength(output, linewidth);
+            output = ReplaceLongWords(output, linewidth);
+            output = SplitToLineLength(output, linewidth);
             return output;
         }
-        private String replaceCaps(String input) // DONE
+        private String ReplaceCaps(String input) // DONE
         {
             /* Rules regarding cap tokens:
              * - 1 cap: Add a 'C'-token and convert letter to lowercase
@@ -805,7 +856,7 @@ namespace Braille_plotter
             }
             return string.Join(" ", words);
         }
-        private String replaceNumbers(String input) // DONE
+        private String ReplaceNumbers(String input) // DONE
         {
             String Callback(Match match)
             {
@@ -822,7 +873,7 @@ namespace Braille_plotter
             string output = Regex.Replace(input, pattern, Callback);
             return output;
         }
-        private String replaceSpecialCharacters(String input)
+        private String ReplaceSpecialCharacters(String input)
         {
             String output = "";
             for (int i = 0; i < input.Length; i++)
@@ -877,7 +928,7 @@ namespace Braille_plotter
             output = Regex.Replace(output, @"[ýÿ]", "y");
             return output;
         }
-        private string removeUnknownCharacters(String input)
+        private string RemoveUnknownCharacters(String input)
         {
             string output = "";
             Regex rg = new Regex(@"[\x20-\x7Eäáàâç©°ëéèê€ïíìîöóô§®üúùû×†\n]");
@@ -890,7 +941,7 @@ namespace Braille_plotter
             }
             return output;
         }
-        private string replaceLongWords(string input, int linewidth) // DONE
+        private string ReplaceLongWords(string input, int linewidth) // DONE
         {
             // To do: add "N" before number after split
             string[] words = input.Split(' ');
@@ -911,7 +962,7 @@ namespace Braille_plotter
             string output = string.Join(" ", words);
             return output;
         }
-        private string splitToLineLength(string input, int linewidth)
+        private string SplitToLineLength(string input, int linewidth)
         {
             if (String.IsNullOrEmpty(input)) return null;
             int currentLineLength = 0;
