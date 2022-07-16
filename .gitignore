@@ -1,9 +1,0 @@
-# ignore file formats:
-*.suo
-*.user
-*.exe
-*.pdb
-*.cache
-bin
-obj
-packages
