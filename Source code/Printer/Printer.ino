@@ -51,7 +51,7 @@ void loop(){
     // Read "stop"-button:
     if (activeState == transmitting){
         // Read 32 characters, or until 0b01_000000 or 0b01_000001 is passed:
-        Serial.println(1); // Send "ready"
+        Serial.println("1"); // Send "ready"
         wait(10000); // wait 10 milliseconds
 
         for (int i = 0; i < 32; i++){
@@ -101,6 +101,7 @@ void wait(uint64_t time){
             tone(7, F4, longTone);
             wait(waitTone * 1000);
             tone(7, F4, longTone);
+            Serial.println("2");
             while(true){} // Stop everything
         }
     }
