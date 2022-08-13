@@ -28,9 +28,39 @@ de computer is aangesloten, draait het programma wel, maar kan logischerwijs nie
 is aangesloten, geeft de printer een piepje. Nog een piepje klinkt als de USB-kabel wordt aangesloten. De brailleprinter
 is nu klaar voor gebruik.
 ### Programma installeren
+Moet nog gedaan worden!
 
-## Help de ontwikkeling
-_Let op: dit project is gelicenseerd onder de Creative Commons licentie (CC BY-NC-SA)._  
+## Licentie
+(NL) Dit project is gelicenseerd onder de Creative Commons licentie (CC BY-NC-SA). Dat houdt in:  
+Je bent vrij om:  
+- **het werk te delen** - te kopiëren, te verspreiden en door te geven via elk medium of bestandsformaat;  
+- **het werk te bewerken** - te remixen, te veranderen en afgeleide werken te maken.  
+onder de volgende voorwaarden:  
+- **Naamsvermelding:** De gebruiker dient de maker van het werk te vermelden, een link naar de licentie te plaatsen en aan
+te geven of het werk veranderd is. Je mag dat op redelijke wijze doen, maar niet zodanig dat de indruk gewekt wordt dat
+de licentiegever instemt met je werk of je gebruik van het werk;  
+- **NietCommercieel:** Je mag het werk niet gebruiken voor commerciële doeleinden;  
+- **GelijkDelen:** Als je het werk hebt geremixt, veranderd, of op het werk hebt voortgebouwd, moet je het veranderde
+materiaal verspreiden onder dezelfde licentie als het originele werk;   
+- **Geen aanvullende restricties:** Je mag geen juridische voorwaarden of technologische voorzieningen toepassen die
+anderen er juridisch in beperken om iets te doen wat de licentie toestaat.  
+_Zie ook de [website van Creative Commons](https://creativecommons.org/licenses/by-nc-sa/3.0/nl/deed.nl)._  
+
+(EN) This project is licensed under the Creative Commons License (CC BY-NC-SA). That means:  
+you are free to:  
+- **Share** - copy and redistribute the material in any medium or format;  
+- **Adapt** - remix, transform, and build upon the material.  
+under the following terms:  
+- **Attribution:** You must give appropriate credit, provide a link to the license, and indicate if changes were made. You
+may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use;  
+- **NonCommercial:** You may not use the material for commercial purposes;  
+- **ShareAlike:** If you remix, transform, or build upon the material, you must distribute your contributions under the same
+license as the original;  
+- **No additional restrictions:** You may not apply legal terms or technological measures that legally restrict others from
+doing anything the license permits.  
+_See also the [website of Creative Commons](https://creativecommons.org/licenses/by-nc-sa/3.0/nl/deed.en)._  
+
+## Help de ontwikkeling 
 Vindt u dit een mooi project en wilt u helpen om dit project een toekomst te geven? Dat kan!
 Bent u handig met programmeren (C++/C#), 3D-tekenen (SolidWorks), prototypen, of PCB-design? Neem dan gerust contact op,
 zodat we samen kunnen kijken wat u kunt betekenen voor dit project.  
