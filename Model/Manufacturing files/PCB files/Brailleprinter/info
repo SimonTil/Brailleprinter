@@ -4,7 +4,7 @@
   "name": "Brailleprinter",
   "content": "",
   "created_at": "2022-05-16 19:11:41",
-  "updated_at": "2022-06-27 19:42:03",
+  "updated_at": "2022-08-13 19:37:51",
   "stick": "",
   "documents": [
     {
@@ -18,11 +18,11 @@
       "thumb": "/images/thumb-default.png",
       "components": {},
       "BOM": [],
-      "updateTime": 1653995170,
+      "updateTime": 1660403705,
       "createTime": 1652726441,
       "histories": [],
       "created_at": "2022-05-16 20:40:41",
-      "updated_at": "2022-05-31 13:06:10"
+      "updated_at": "2022-08-13 17:15:05"
     },
     {
       "uuid": "bbbaba460353e40cf23815dd4172207d",
@@ -33,15 +33,13 @@
       "docType": "3",
       "master": "",
       "thumb": "/images/thumb-default.png",
-      "components": {
-        "8e9b1be4bcb6420dbd1d09bf04b02792": 6
-      },
+      "components": {},
       "BOM": [],
-      "updateTime": 1653999701,
+      "updateTime": 1660412271,
       "createTime": 1653942386,
       "histories": [],
       "created_at": "2022-05-30 22:26:26",
-      "updated_at": "2022-05-31 14:21:41"
+      "updated_at": "2022-08-13 19:37:51"
     }
   ],
   "sort": [],

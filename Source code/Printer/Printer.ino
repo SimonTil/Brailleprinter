@@ -24,9 +24,10 @@ enum duration {longTone = 100, shortTone = 50, waitTone = 10};
 
 void setup(){
     // Initialize pins:
-    pinMode(8, INPUT_PULLUP); // buttonS
-    pinMode(A1, INPUT_PULLUP); // paperSensor
-    pinMode(10, INPUT_PULLUP); // buttonF
+    pinMode(7, INPUT_PULLUP); // buttonS
+    pinMode(8, INPUT_PULLUP); // buttonF
+    pinMode(9, INPUT_PULLUP); // paperSensor
+    pinMode(3, INPUT_PULLUP); // endstop
 
     // Initialize servos:
     servos.begin();
@@ -58,7 +59,7 @@ void loop(){
             // Wait until serial is available:
             while (!Serial.available() > 0){
                 // No serial available, check if buttonF is pressed:
-                if ((PINB & 0b00000100) == 0) nextY();
+                if (PINB & 0 == 0) nextY();
                 // Wait 1 millisecond while checking if buttonS is pressed:
                 wait(1000);
             }
@@ -97,7 +98,7 @@ void wait(uint64_t time){
 
     // Wait while checking buttonS:
     while (currentMicros + time < micros()){
-        if ((PINB & 0b00000001) == 0){
+        if (PIND & 0b10000000 == 0){ // Read buttonS
             tone(7, F4, longTone);
             wait(waitTone * 1000);
             tone(7, F4, longTone);
@@ -128,22 +129,22 @@ void servosUp(){
 
 void home(){
     uint16_t homeOffset = 20;
-    PORTC &= 0b11110111; // turn direction LOW
+    PORTD &= 0b11011111; // turn direction LOW
 
     // Move until limit switch is triggered:
-    while (PINC & 0b10 == 1){ // Read A1
-        PORTC ^= 1 << 2; // Toggle A2
+    while (PIND & 0b00000100 == 1){ // Read Button LimitSwitch
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
     }
 
     // Move offset:
-    PORTC != 0b00001000; // turn direction HIGH
+    PORTD != 0b11011111; // turn direction HIGH
     for (int i = 0; i < homeOffset; i++){
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
     }
     pos.x = 0;
@@ -153,10 +154,11 @@ void nextX(){
     uint16_t numOfSteps = 520;
 
     // Go to next character:
+    PORTD != 0b11011111; // turn direction HIGH
     for (int i = 0; i < numOfSteps; i++){
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 4; // Toggle D4
         wait(speed.x / 2);
     }
     pos.x++;
@@ -177,9 +179,9 @@ void nextY(){
 
         // Go to next line:
         for (int i = 0; i < numOfSteps; i++){
-            PORTC ^= 1 << 2; // Toggle A2
+            PORTD ^= 1 << 2; // Toggle D2
             wait(speed.y / 2);
-            PORTC ^= 1 << 2; // Toggle A2
+            PORTD ^= 1 << 2; // Toggle D2
             wait(speed.y / 2);
         }
         pos.y++;
@@ -193,18 +195,18 @@ void nextPaper(){
 
     // Feed out:
     for (int i = 0; i < outfeedSteps; i++){
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
     }
 
     // Wait for paper:
     tone(7, C4, shortTone);
-    while (PINC & 0b10 == 1){ // Wait until A1 is LOW
-        PORTC ^= 1 << 2; // Toggle A2
+    while (PORTB & 1 == 1){ // Wait until D9 is LOW
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
         // Beep every second until paper is present
         if (startCounter + iterator > millis()){
@@ -219,9 +221,9 @@ void nextPaper(){
 
     // Feed in:
     for (int i = 0; i < infeedSteps; i++){
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
-        PORTC ^= 1 << 2; // Toggle A2
+        PORTD ^= 1 << 2; // Toggle D2
         wait(speed.y / 2);
     }
     pos.y = 0;
