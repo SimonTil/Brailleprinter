@@ -35,6 +35,7 @@ Moet nog gedaan worden!
 Je bent vrij om:  
 - **het werk te delen** - te kopiëren, te verspreiden en door te geven via elk medium of bestandsformaat;  
 - **het werk te bewerken** - te remixen, te veranderen en afgeleide werken te maken.  
+
 onder de volgende voorwaarden:  
 - **Naamsvermelding:** De gebruiker dient de maker van het werk te vermelden, een link naar de licentie te plaatsen en aan
 te geven of het werk veranderd is. Je mag dat op redelijke wijze doen, maar niet zodanig dat de indruk gewekt wordt dat
@@ -44,12 +45,14 @@ de licentiegever instemt met je werk of je gebruik van het werk;
 materiaal verspreiden onder dezelfde licentie als het originele werk;   
 - **Geen aanvullende restricties:** Je mag geen juridische voorwaarden of technologische voorzieningen toepassen die
 anderen er juridisch in beperken om iets te doen wat de licentie toestaat.  
+
 _Zie ook de [website van Creative Commons](https://creativecommons.org/licenses/by-nc-sa/3.0/nl/deed.nl)._  
 
 (EN) This project is licensed under the Creative Commons License (CC BY-NC-SA). That means:  
 you are free to:  
 - **Share** - copy and redistribute the material in any medium or format;  
 - **Adapt** - remix, transform, and build upon the material.  
+
 under the following terms:  
 - **Attribution:** You must give appropriate credit, provide a link to the license, and indicate if changes were made. You
 may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use;  
@@ -58,6 +61,7 @@ may do so in any reasonable manner, but not in any way that suggests the licenso
 license as the original;  
 - **No additional restrictions:** You may not apply legal terms or technological measures that legally restrict others from
 doing anything the license permits.  
+
 _See also the [website of Creative Commons](https://creativecommons.org/licenses/by-nc-sa/3.0/nl/deed.en)._  
 
 ## Help de ontwikkeling 
