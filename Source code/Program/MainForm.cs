@@ -29,8 +29,9 @@ namespace Braille_plotter
         private readonly string titleSuffix = " - Braille printer";
         private readonly string headerBarName = "Braille printer";
         private readonly string fileTypes = "Tekstbestanden (*.txt)|*.txt|Alle bestanden (*.*)|*.*";
-        private enum Status { cancelled, available, waiting }
-        private Status status = Status.available;
+        private int status = 1; // 0 = cancelled, 1 = available, 2 = waiting
+        //private enum Status { cancelled, available, waiting };
+        //private Status status = Status.available;
         private bool timeOver = false;
 
         #endregion
@@ -103,6 +104,8 @@ namespace Braille_plotter
                 this.Name = Path.GetFileNameWithoutExtension(filePath);
                 fileChanged = false;
                 UpdateTitle();
+                string input = TB_input.Text;
+                TB_preview.Text = PreviewBraille(ConvertToChars(ConvertToBraille(input)));
             }
         }
         private void UpdateTitle() // DONE
@@ -123,11 +126,11 @@ namespace Braille_plotter
             String inData = sp.ReadExisting();
             if (inData == "1")
             {
-                status = Status.available;
+                status = 1;
             }
             else if (inData == "2")
             {
-                status = Status.cancelled;
+                status = 0;
             }
         }
         private void Timer_Tick(object sender, EventArgs e)
@@ -306,7 +309,7 @@ namespace Braille_plotter
             MI_converteren.Enabled = String.IsNullOrEmpty(TB_input.Text) != true;
         }
         private void MI_print_Click(object sender, EventArgs e)
-        {
+        {            
             if (String.IsNullOrEmpty(TB_input.Text)) return;
 
             // Preview text
@@ -336,7 +339,6 @@ namespace Braille_plotter
             // Port found, send data
             if (printerPort != null)
             {
-                MessageBox.Show(printerPort);
                 // Run code!
                 SerialPort printer = new SerialPort(printerPort, 9600);
                 printer.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
@@ -347,26 +349,34 @@ namespace Braille_plotter
                 for (int i = 0; i < output.Count; i++)
                 {
                     // Set status to waiting
-                    status = Status.waiting;
+                    status = 2;
 
                     // Send 1 line to printer
-                    printer.Write(output[i], 0, output[i].Length);
+                    try
+                    {
+                        printer.Write(output[i], 0, output[i].Length);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Probleem met het sturen van tekst naar de printer", "Braille printer");
+                        return;
+                    }
 
                     // Wait for feedback and continue or cancel
-                    var timer = new System.Windows.Forms.Timer { Interval = 120_000};
+                    var timer = new System.Windows.Forms.Timer { Interval = 120_000 };
                     timer.Tick += new EventHandler(Timer_Tick);
                     timer.Start();
                     while (true)
                     {
-                        if (status == Status.available)
+                        if (status == 1)
                         {
                             timer.Stop();
                             break;
                         }
-                        else if (status == Status.cancelled || timeOver)
+                        else if (status == 0 || timeOver)
                         {
-                            printer.Close();
                             MessageBox.Show("Printer ontkoppeld, printproces afgebroken!", "Braille printer");
+                            printer.Close();
                             printerPort = null;
                             timer.Stop();
                             return;
@@ -376,16 +386,24 @@ namespace Braille_plotter
                             // To prevent overheating
                             Thread.Sleep(10);
                         }
+
+                        if (!printer.IsOpen)
+                        {
+                            printer.Close();
+                            MessageBox.Show("Print halverwege afgebroken!", "Braille printer");
+                            return;
+                        }
                     }
                 }
 
                 printer.Close();
-                MessageBox.Show("Closed");
+                MessageBox.Show("Printen gelukt. Druk op de F-toets op de printer om het papier uit te voeren.", "Braille printer");
 
                 printerPort = null;
             }
             else
             {
+                // Should never happen (theoretically)
                 MessageBox.Show("Printer niet verbonden!", "Braille printer");
             }
         }
@@ -397,7 +415,7 @@ namespace Braille_plotter
 
         private void MI_onlineHelp_Click(object sender, EventArgs e) // AT FINISH
         {
-            Process.Start("https://github.com/SimonTil/Brailleprinter/blob/main/Gebruikershandleiding.docx");
+            Process.Start("https://github.com/SimonTil/Brailleprinter/raw/main/Gebruikershandleiding.docx");
         }
         private void MI_shortcuts_Click(object sender, EventArgs e) // DONE
         {
@@ -487,7 +505,7 @@ namespace Braille_plotter
             aboutForm.Controls.Add(
                 new PictureBox()
                 {
-                    ImageLocation = "C:/Users/simon/Documents/3D-printer/Braille printer/Program/Braille printer/License.png",
+                    ImageLocation = "C:/Users/simon/Documents/GitHub/Brailleprinter/Source code/Program/License.png",
                     SizeMode = PictureBoxSizeMode.Zoom,
                     Size = new Size(100, 50),
                     Location = new Point(100, 150)
@@ -507,7 +525,7 @@ namespace Braille_plotter
             aboutForm.Controls.Add(
                 new Label()
                 {
-                    Text = "29-03-2022",
+                    Text = "29-08-2022",
                     Width = aboutForm.Width,
                     Font = new Font("Segoe UI", 9, FontStyle.Italic),
                     TextAlign = ContentAlignment.MiddleCenter,
@@ -528,11 +546,12 @@ namespace Braille_plotter
         {
             List<String> output = new List<String>();
 
-            String[] inputSplitted = input.Split('\n');
-            for (int i = 0; i < inputSplitted.Length; i++)
+            String[] myOutput = ConvertLineToBraille(input).Split('\n');
+            for (int i = 0; i < myOutput.Length; i++)
             {
-                output.Add(ConvertLineToBraille(inputSplitted[i]));
+                output.Add(myOutput[i]);
             }
+
             return output;
         }
         private List<byte[]> ConvertToChars(List<String> input)
@@ -677,30 +696,36 @@ namespace Braille_plotter
         private String ConvertLineToBraille(String input)
         {
             int linewidth = 31;
-            // Replace caps
-            String output = ReplaceCaps(input);
 
-            // Replace number
-            output = ReplaceNumbers(output);
+            // Split on enters, and convert line by line
+            String[] output = input.Split('\n');
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = ReplaceCaps(output[i]);
 
-            // Replace special characters
-            output = ReplaceSpecialCharacters(output);
-            output = RemoveUnknownCharacters(output);
+                // Replace number
+                output[i] = ReplaceNumbers(output[i]);
 
-            // Cut to max linewidth
-            output = ReplaceLongWords(output, linewidth);
-            output = SplitToLineLength(output, linewidth);
-            return output;
+                // Replace special characters
+                output[i] = ReplaceSpecialCharacters(output[i]);
+                output[i] = RemoveUnknownCharacters(output[i]);
+
+                // Cut to max linewidth
+                output[i] = ReplaceLongWords(output[i], linewidth);
+                output[i] = SplitToLineLength(output[i], linewidth);
+            }
+
+            return string.Join("\n", output);
         }
         private String ReplaceCaps(String input) // DONE
         {
             /* Rules regarding cap tokens:
              * - 1 cap: Add a 'C'-token and convert letter to lowercase
              * - > 1 cap: Add a 'P'-token and convert following to lowercase
-             *   - permanent modus includes interpunction, like dots and quotation marks
-             *   - Recovery token, space and number token cancels permanent modus
+             *     - permanent modus includes interpunction, like dots and quotation marks
+             *     - Recovery token, space and number token cancels permanent modus
              * - More than 3 words of entire caps: Add 2 'P'-tokens before first, and single 'P'-token before last word
-             *   - Words can contain numbers and hyphens
+             *     - Words can contain numbers and hyphens
              *     - Next words only numbers cancels permanent modus
              *   - Double space and '\n' cancels permanent modus
              */
@@ -711,7 +736,7 @@ namespace Braille_plotter
             }
             bool singleCapModus(String capsInput) // DONE
             {
-                capsInput = Regex.Replace(capsInput, @"[\.,;:/*\+\']|\x22", "");
+                capsInput = Regex.Replace(capsInput, @"[\.,;:\-/*\+\']|\x22", "");
                 if (String.IsNullOrEmpty(capsInput)) return false;
                 return isUpper(capsInput);
             }

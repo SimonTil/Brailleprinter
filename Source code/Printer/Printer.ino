@@ -10,8 +10,8 @@ uint64_t servoDownDelay = 20000, servoUpDelay = 20000;
 
 // Printing:
 Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver();
-uint16_t servosIdle[6] = {150, 150, 150, 180, 180, 180};
-uint16_t servosPressed[6] = {180, 180, 180, 150, 150, 150};
+uint16_t servosIdle[6] = {1560, 1510, 1530, 1500, 1480, 1490};
+uint16_t servosPressed[6] = {1490, 1400, 1430, 1610, 1590, 1600};
 uint8_t line[32]; // 31 positions, including line feed
 
 // Steppers
