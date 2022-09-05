@@ -1,6 +1,6 @@
 ﻿#region Using directives
 using System;
-using System.Text;
+using System.Timers;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Drawing;
@@ -363,8 +363,9 @@ namespace Braille_plotter
                     }
 
                     // Wait for feedback and continue or cancel
-                    var timer = new System.Windows.Forms.Timer { Interval = 120_000 };
-                    timer.Tick += new EventHandler(Timer_Tick);
+                    var timer = new System.Timers.Timer(2000); // Timer on 2 minutes for infinite loop
+                    timer.Enabled = true;
+                    timer.Elapsed += new ElapsedEventHandler(Timer_Tick);
                     timer.Start();
                     while (true)
                     {
