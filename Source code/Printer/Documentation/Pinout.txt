@@ -1,0 +1,11 @@
+Used pins:
+8 = buttonS
+7 = buttonF
+9 = paper
+3 = endstop
+
+6 = tone
+
+2 = stepfeed
+4 = stepcarr
+5 = dircarr
