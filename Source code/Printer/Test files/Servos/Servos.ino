@@ -31,7 +31,8 @@ void servosDown(){
         servos.writeMicroseconds(i, servosIdle[i]);
         delay(1);
     }
-}
+    delay(400);
+    }
 
 void servosUp(){
     // Release servos:
@@ -39,4 +40,5 @@ void servosUp(){
         servos.writeMicroseconds(i, servosPressed[i]);
         delay(1);
     }
+    delay(400);
 }

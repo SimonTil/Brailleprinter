@@ -9,12 +9,13 @@ void setup(){
 }
 
 void loop(){
+    Serial.print("button1 ");
     Serial.print(digitalRead(7));
-    Serial.print(", ");
+    Serial.print(", button2: ");
     Serial.print(digitalRead(8));
-    Serial.print(", ");
+    Serial.print(", paper sensor: ");
     Serial.print(digitalRead(9));
-    Serial.print(", ");
+    Serial.print(", endstop: ");
     Serial.println(digitalRead(3));
     delay(10);
 }
