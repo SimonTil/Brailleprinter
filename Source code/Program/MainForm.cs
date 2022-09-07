@@ -343,7 +343,15 @@ namespace Braille_plotter
                 SerialPort printer = new SerialPort(printerPort, 9600);
                 printer.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                 printer.Open();
-                MessageBox.Show("Printer verbonden. Print begint nu!", "Braille printer");
+                if (printer.IsOpen)
+                {
+                    MessageBox.Show("Printer verbonden. Print begint nu!", "Braille printer");
+                }
+                else
+                {
+                    MessageBox.Show("Printer niet verbonden.", "Braille printer");
+                    return;
+                }
 
                 // Send all text
                 for (int i = 0; i < output.Count; i++)
@@ -363,7 +371,7 @@ namespace Braille_plotter
                     }
 
                     // Wait for feedback and continue or cancel
-                    var timer = new System.Timers.Timer(2000); // Timer on 2 minutes for infinite loop
+                    var timer = new System.Timers.Timer(120000); // Timer on 2 minutes for infinite loop
                     timer.Enabled = true;
                     timer.Elapsed += new ElapsedEventHandler(Timer_Tick);
                     timer.Start();
