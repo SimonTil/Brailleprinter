@@ -132,6 +132,10 @@ namespace Braille_plotter
             {
                 status = 0;
             }
+            else
+            {
+                MessageBox.Show("Printer gives error. Restart the program and reset the printer", "Braille printer");
+            }
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -406,7 +410,7 @@ namespace Braille_plotter
                 }
 
                 printer.Close();
-                MessageBox.Show("Printen gelukt. Druk op de F-toets op de printer om het papier uit te voeren.", "Braille printer");
+                MessageBox.Show("Printen gelukt. Druk op de F-knop om het papier uit te voeren.", "Braille printer");
 
                 printerPort = null;
             }

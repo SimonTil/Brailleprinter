@@ -11,8 +11,8 @@ void setup(){
   pinMode(endstopPin, INPUT_PULLUP);
 
   // First home the carriage
-  digitalWrite(dirCarrPin, HIGH);
-  while(digitalRead(3)){
+  PORTD = PORTD | B00100000;
+  while((PIND & 0b00001000) != 0){
     PORTD = PORTD | B00010000;
     waitMicroseconds(speedDelay);
     PORTD = PORTD & B11101111;
@@ -21,15 +21,19 @@ void setup(){
 }
 
 void loop(){
-  digitalWrite(dirCarrPin, LOW);
-  for(int i = 0; i < 8000; i++){
+  PORTD = PORTD & B11011111;
+  for(int i = 0; i < 30; i++){
+    delay(300);
+    for(int j = 0; j < 480; j++){
     PORTD = PORTD | B00010000;
     waitMicroseconds(speedDelay);
     PORTD = PORTD & B11101111;
     waitMicroseconds(speedDelay);
   }
-  digitalWrite(dirCarrPin, HIGH);
-  while(digitalRead(3)){
+  }
+  delay(300);
+  PORTD = PORTD | B00100000;
+  while((PIND & 0b00001000) != 0){
     PORTD = PORTD | B00010000;
     waitMicroseconds(speedDelay);
     PORTD = PORTD & B11101111;

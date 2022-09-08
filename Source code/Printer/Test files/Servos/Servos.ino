@@ -2,27 +2,27 @@
 #include <Adafruit_PWMServoDriver.h>
 
 Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver();
-uint16_t servosIdle[6] = {1560, 1510, 1530, 1500, 1480, 1490};
-uint16_t servosPressed[6] = {1490, 1400, 1430, 1610, 1590, 1600};
+uint16_t servosIdle[6] = {1550, 1500, 1530, 1530, 1460, 1480};
+uint16_t servosPressed[6] = {1450, 1400, 1430, 1630, 1560, 1580}; // lower value, higher pin
 
 void setup(){
     Serial.begin(9600);
     servos.begin();
     servos.setOscillatorFrequency(27000000);
     servos.setPWMFreq(50);
-    delay(100);
+    delay(200);
     servosDown();
-    delay(1000);
+    delay(200);
 }
 
 void loop(){
     servos.wakeup();
     servosUp();
-    delay(2000);
+    delay(500);
     servosDown();
     delay(50);
     servos.sleep();
-    delay(2000);
+    delay(10000);
 }
 
 void servosDown(){
@@ -31,8 +31,7 @@ void servosDown(){
         servos.writeMicroseconds(i, servosIdle[i]);
         delay(1);
     }
-    delay(400);
-    }
+}
 
 void servosUp(){
     // Release servos:
@@ -40,5 +39,4 @@ void servosUp(){
         servos.writeMicroseconds(i, servosPressed[i]);
         delay(1);
     }
-    delay(400);
 }
