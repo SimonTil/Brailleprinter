@@ -132,10 +132,6 @@ namespace Braille_plotter
             {
                 status = 0;
             }
-            else
-            {
-                MessageBox.Show("Printer gives error. Restart the program and reset the printer", "Braille printer");
-            }
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
