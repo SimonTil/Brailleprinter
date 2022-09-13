@@ -4,5 +4,5 @@ void setup(){
 }
 
 void loop(){
-  Serial.println(digitalRead(9));
+  Serial.println((PINB & 2), BIN);
 }

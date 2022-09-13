@@ -10,8 +10,8 @@ uint8_t buffer[32];
 
 // Setup for servos:
 Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver();
-uint16_t servosIdle[6] = { 1560, 1510, 1530, 1500, 1480, 1490 };
-uint16_t servosPressed[6] = { 1490, 1400, 1430, 1610, 1590, 1600 };
+uint16_t servosIdle[6] = { 1400, 1580, 890, 1760, 1470, 1480 };
+uint16_t servosPressed[6] = { 1290, 1460, 800, 1860, 1580, 1580 };
 
 // Setup for buttons:
 #define BUTTON_S_PIN     8
@@ -19,32 +19,54 @@ uint16_t servosPressed[6] = { 1490, 1400, 1430, 1610, 1590, 1600 };
 #define PAPER_SENSOR_PIN 9
 #define LIMIT_SWITCH_PIN 3
 
+// Setup for speaker:
+#define SPEAKER_PIN      6
+enum pitches {
+    noteC3 = 131,
+    noteA3 = 220,
+    noteB3 = 247,
+    noteD4 = 293,
+    noteC5 = 523
+};
+
 /* MAIN SETUP */
 void setup(){
     Serial.begin(9600);
     
+    // Initialize servos:
+    servos.begin();
+    servos.setOscillatorFrequency(27000000);
+    servos.setPWMFreq(50);
+    for(int i = 0; i < 6; i++){
+        servos.writeMicroseconds(i, servosIdle[i]);
+    }
+
     // Initialize buttons:
     pinMode(BUTTON_S_PIN, INPUT_PULLUP);
     pinMode(BUTTON_F_PIN, INPUT_PULLUP);
     pinMode(PAPER_SENSOR_PIN, INPUT_PULLUP);
     pinMode(LIMIT_SWITCH_PIN, INPUT_PULLUP);
 
-    // Initialize servos:
-    servos.begin();
-    servos.setOscillatorFrequency(27000000);
-    servos.setPWMFreq(50);
-    printChar(0);
-
     // Initialize steppers:
     pinMode(5, OUTPUT); // carriage direction
     pinMode(4, OUTPUT); // carriage step
     pinMode(2, OUTPUT); // feeder step
+    digitalWrite(10, HIGH); // turn off feeder
     home();
+
+    // Initialize speaker:
+    pinMode(SPEAKER_PIN, OUTPUT);
+    tone(SPEAKER_PIN, noteC5, 150);
+    wait(200000);
+    tone(SPEAKER_PIN, noteD4, 200);
+    wait(200000);
 }
 
 /* MAIN LOOP */
 void loop(){
     if(activeState == transmitting){
+        Serial.write("1");
+        wait(200000);
         for(int i = 0; i < 32; i++){
             // Wait for computer to receive data, while checking button "F":
             while(!Serial.available()){
@@ -52,7 +74,7 @@ void loop(){
                 if (!digitalRead(BUTTON_F_PIN)) nextY();
 
                 // Take a breathe to prevent overheating in idle state:
-                wait(50);
+                wait(50000);
             }
 
             // Read single char:
@@ -102,11 +124,10 @@ void loop(){
 
         // Send ready to receive new line:
         activeState = transmitting;
-        Serial.write("1");
     }
 }
 
-void waitMicroseconds(uint64_t delayTime){
+void wait(uint64_t delayTime){
     // Starting time:
     uint64_t startTime = micros();
 
@@ -117,34 +138,14 @@ void waitMicroseconds(uint64_t delayTime){
         {
             // Send "printer halted":
             Serial.write("2");
-            
-            // Speaker: "Terminated":
-            //tone(SPEAKER_PIN, noteC3, 300);
-            //wait(500);
-            //tone(SPEAKER_PIN, noteC3, 600);
 
-            // Stop everything until hard reset:
-            while(true){}
-        }
-    }
-}
-void wait(uint64_t delayTime)
-{
-    // Starting time:
-    uint64_t startTime = millis();
+            // Wait until button is released:
+            while(!digitalRead(BUTTON_S_PIN));
 
-    // Wait while reading button "S":
-    while (startTime + delayTime > millis())
-    {
-        if(!digitalRead(BUTTON_S_PIN))
-        {
-            // Send "printer halted":
-            Serial.write("2");
-            
             // Speaker: "Terminated":
-            //tone(SPEAKER_PIN, noteC3, 300);
-            //wait(500);
-            //tone(SPEAKER_PIN, noteC3, 600);
+            tone(SPEAKER_PIN, noteC3, 300);
+            wait(500000);
+            tone(SPEAKER_PIN, noteC3, 600);
 
             // Stop everything until hard reset:
             while(true){}
@@ -161,58 +162,76 @@ void nextX(){
     for(uint16_t i = 0; i < 480; i++)
     {
         PORTD = PORTD | B00010000;
-        waitMicroseconds(70);
+        wait(70);
         PORTD = PORTD & B11101111;
-        waitMicroseconds(70);
+        wait(70);
     }
 }
 void nextY(){
+    // Turn on stepper motor:
+    digitalWrite(10, LOW);
+    wait(200000);
+
     // Go to next line
-    for (uint16_t i = 0; i < 1273; i++) {
+    for (uint16_t i = 0; i < 1248; i++) {
         PORTD = PORTD | B00000100;
-        waitMicroseconds(100);
+        wait(100);
         PORTD = PORTD & B11111011;
-        waitMicroseconds(100);
+        wait(100);
     }
+
+    // Turn off stepper motor
+    wait(10000);
+    digitalWrite(10, HIGH);
+    wait(200000);
 }
 void nextPaper(){
     // When no paper detected on next line:
-    if (digitalRead(9)){
+    if ((PINB & 2) != 0){ // fast !digitalRead(9)
         // Speaker: "Enter new paper":
-        //tone(SPEAKER_PIN, noteB3, 150);
-        //wait(200);
-        //tone(SPEAKER_PIN, noteB3, 150);
-        //wait(200);
-        //tone(SPEAKER_PIN, noteA3, 200);
+        tone(SPEAKER_PIN, noteB3, 150);
+        wait(200000);
+        tone(SPEAKER_PIN, noteB3, 150);
+        wait(200000);
+        tone(SPEAKER_PIN, noteA3, 200);
+
+        // Turn on stepper motor:
+        digitalWrite(10, LOW);
+        wait(200000);
 
         // Outfeed (optional) previous paper:
-        for (uint16_t i = 0; i < 750; i++) {
+        for (uint16_t i = 0; i < 8111; i++) {
             PORTD = PORTD | B00000100;
-            waitMicroseconds(100);
+            wait(100);
             PORTD = PORTD & B11111011;
-            waitMicroseconds(100);
+            wait(100);
         }
 
         // Feed until paper sensor is triggered:
-        while (digitalRead(9)) {
+        while ((PINB & 2) != 0) { // fast !digitalRead(9)
             PORTD = PORTD | B00000100;
-            waitMicroseconds(100);
+            wait(100);
             PORTD = PORTD & B11111011;
-            waitMicroseconds(100);
+            wait(100);
         }
 
         // Speaker: "New paper detected":
-        //tone(SPEAKER_PIN, noteA3, 200);
-        //wait(150);
-        //tone(SPEAKER_PIN, noteB3, 200);
+        tone(SPEAKER_PIN, noteA3, 200);
+        wait(150000);
+        tone(SPEAKER_PIN, noteB3, 200);
 
         // Feed in:
-        for (uint16_t i = 0; i < 2000; i++) {
+        for (uint16_t i = 0; i < 4340; i++) {
             PORTD = PORTD | B00000100;
-            waitMicroseconds(100);
+            wait(100);
             PORTD = PORTD & B11111011;
-            waitMicroseconds(100);
+            wait(100);
         }
+
+        // Turn off stepper motor
+        wait(10000);
+        digitalWrite(10, HIGH);
+        wait(200000);
     }
 }
 void home()
@@ -224,9 +243,9 @@ void home()
     while (digitalRead(LIMIT_SWITCH_PIN))
     {
         PORTD = PORTD | B00010000;
-        waitMicroseconds(50);
+        wait(50);
         PORTD = PORTD & B11101111;
-        waitMicroseconds(50);
+        wait(50);
     }
 
     // Set direction to LOW:
@@ -236,9 +255,9 @@ void home()
     for(uint16_t i = 0; i < 110; i++)
     {
         PORTD = PORTD | B00010000;
-        waitMicroseconds(70);
+        wait(70);
         PORTD = PORTD & B11101111;
-        waitMicroseconds(70);
+        wait(70);
     }
 }
 
@@ -246,6 +265,7 @@ void home()
 void printChar(uint8_t character){
     // Wake up servo driver (for power distribution):
     servos.wakeup();
+    wait(10000);
 
     // set all servos:
     for (uint8_t i = 0; i < 6; i++) {
@@ -260,20 +280,17 @@ void printChar(uint8_t character){
     }
 
     // Wait for pins to go up:
-    wait(200);
+    wait(500000);
 
-    if(character != 0){
-        // Hold pins:
-        wait(300);
-
-        // Release all servos:
-        for (uint8_t i = 0; i < 6; i++) {
-            servos.writeMicroseconds(i, servosIdle[i]);
-        }
-
-        // Wait for pins to go down:
-        wait(200);
+    // Release all servos:
+    for (uint8_t i = 0; i < 6; i++) {
+        servos.writeMicroseconds(i, servosIdle[i]);
     }
+
+    // Wait for pins to go down:
+    wait(200000);
+
     // Turn off servo driver:
     servos.sleep();
+    wait(10000);
 }

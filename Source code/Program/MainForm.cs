@@ -123,7 +123,8 @@ namespace Braille_plotter
         private void DataReceivedHandler(object sender, EventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            String inData = sp.ReadExisting();
+            string inData = sp.ReadExisting();
+            //MessageBox.Show(inData);
             if (inData == "1")
             {
                 status = 1;

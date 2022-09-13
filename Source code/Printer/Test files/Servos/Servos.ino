@@ -18,7 +18,19 @@ void setup(){
 void loop(){
     servos.wakeup();
     servosUp();
+    delay(10);
+    servosUp();
+    delay(10);
+    servosUp();
+    delay(10);
+    servosUp();
     delay(500);
+    servosDown();
+    delay(10);
+    servosDown();
+    delay(10);
+    servosDown();
+    delay(10);
     servosDown();
     delay(50);
     servos.sleep();
