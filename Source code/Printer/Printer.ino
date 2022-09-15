@@ -7,11 +7,12 @@ enum states {
     transmitting, printing
 } activeState = transmitting;
 uint8_t buffer[32];
+bool homed = false;
 
 // Setup for servos:
 Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver();
-uint16_t servosIdle[6] = { 1400, 1580, 890, 1760, 1470, 1480 };
-uint16_t servosPressed[6] = { 1290, 1460, 800, 1860, 1580, 1580 };
+uint16_t servosIdle[6] = { 1400, 1600, 890, 1550, 1480, 1480 };
+uint16_t servosPressed[6] = { 1240, 1410, 750, 1700, 1620, 1610 };
 
 // Setup for buttons:
 #define BUTTON_S_PIN     8
@@ -65,8 +66,11 @@ void setup(){
 /* MAIN LOOP */
 void loop(){
     if(activeState == transmitting){
+        // Send "Ready to receive line":
         Serial.write("1");
-        wait(200000);
+        delay(200);
+
+        // Read up to 32 characters from serial:
         for(int i = 0; i < 32; i++){
             // Wait for computer to receive data, while checking button "F":
             while(!Serial.available()){
@@ -93,6 +97,9 @@ void loop(){
             }
         }
     }else{ // activeState == printing
+        // Home if not yet homed:
+        if(!homed) home();
+        
         // If no paper detected, feed until new paper inserted:
         nextPaper();
 
@@ -114,7 +121,7 @@ void loop(){
         }
 
         // Move to position 0:
-        home();
+        if(!homed) home();
 
         // Next line:
         nextY();
@@ -155,6 +162,9 @@ void wait(uint64_t delayTime){
 
 /* MOVEMENT FUNCTIONS */
 void nextX(){
+    // Set to not homed:
+    homed = false;
+
     // Set direction to positive:
     digitalWrite(5, LOW);
 
@@ -162,9 +172,9 @@ void nextX(){
     for(uint16_t i = 0; i < 480; i++)
     {
         PORTD = PORTD | B00010000;
-        wait(70);
+        wait(150);
         PORTD = PORTD & B11101111;
-        wait(70);
+        wait(150);
     }
 }
 void nextY(){
@@ -173,7 +183,7 @@ void nextY(){
     wait(200000);
 
     // Go to next line
-    for (uint16_t i = 0; i < 1248; i++) {
+    for (uint16_t i = 0; i < 1300; i++) {
         PORTD = PORTD | B00000100;
         wait(100);
         PORTD = PORTD & B11111011;
@@ -236,29 +246,67 @@ void nextPaper(){
 }
 void home()
 {
-    // Set direction to HIGH:
-    digitalWrite(5, HIGH);
+    if(!digitalRead(LIMIT_SWITCH_PIN)){ // if limit switch triggered
+        // Set direction to positive:
+        digitalWrite(5, LOW);
 
-    // Take steps until endstop is triggered:
-    while (digitalRead(LIMIT_SWITCH_PIN))
-    {
-        PORTD = PORTD | B00010000;
-        wait(50);
-        PORTD = PORTD & B11101111;
-        wait(50);
+        // Take steps until endstop is no longer triggered
+        while (!digitalRead(LIMIT_SWITCH_PIN)){
+            PORTD = PORTD | B00010000;
+            wait(50);
+            PORTD = PORTD & B11101111;
+            wait(50);
+        }
+    }else{
+        // Set direction to negative:
+        digitalWrite(5, HIGH);
+
+        // Take steps until endstop is triggered:
+        while (digitalRead(LIMIT_SWITCH_PIN)){
+            PORTD = PORTD | B00010000;
+            wait(50);
+            PORTD = PORTD & B11101111;
+            wait(50);
+        }
     }
 
-    // Set direction to LOW:
+    // Set direction to positive:
+    digitalWrite(5, LOW);
+
+    // Take a couple of steps:
+    for(uint16_t i = 0; i < 500; i++)
+    {
+        PORTD = PORTD | B00010000;
+        wait(70);
+        PORTD = PORTD & B11101111;
+        wait(70);
+    }
+
+    // Set direction to negative:
+    digitalWrite(5, HIGH);
+
+    // Home slowly:
+    while (digitalRead(LIMIT_SWITCH_PIN)){
+        PORTD = PORTD | B00010000;
+        wait(200);
+        PORTD = PORTD & B11101111;
+        wait(200);
+    }
+
+    // Set direction to positive:
     digitalWrite(5, LOW);
 
     // Move to first character position (offset):
-    for(uint16_t i = 0; i < 110; i++)
+    for(uint16_t i = 0; i < 10; i++)
     {
         PORTD = PORTD | B00010000;
-        wait(70);
+        wait(150);
         PORTD = PORTD & B11101111;
-        wait(70);
+        wait(150);
     }
+
+    // Set homed:
+    homed = true;
 }
 
 /* PRINTHEAD FUNCTIONS */
