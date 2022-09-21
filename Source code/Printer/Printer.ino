@@ -53,7 +53,6 @@ void setup(){
     pinMode(4, OUTPUT); // carriage step
     pinMode(2, OUTPUT); // feeder step
     digitalWrite(10, HIGH); // turn off feeder
-    home();
 
     // Initialize speaker:
     pinMode(SPEAKER_PIN, OUTPUT);
@@ -68,8 +67,6 @@ void loop(){
     if(activeState == transmitting){
         // Send "Ready to receive line":
         Serial.write("1");
-        delay(200);
-
         // Read up to 32 characters from serial:
         for(int i = 0; i < 32; i++){
             // Wait for computer to receive data, while checking button "F":
@@ -83,12 +80,11 @@ void loop(){
 
             // Read single char:
             buffer[i] = Serial.read();
+            delay(1);
 
             // In case of new line (0b01000000) or end of file (0b01000001):
             if(buffer[i] >= 0b01000000){
-                // Flush serial:
-                Serial.flush();
-
+                Serial.write(buffer, 32);
                 // Change state to "printing":
                 activeState = printing;
 
@@ -239,7 +235,6 @@ void nextPaper(){
         }
 
         // Turn off stepper motor
-        wait(10000);
         digitalWrite(10, HIGH);
         wait(200000);
     }

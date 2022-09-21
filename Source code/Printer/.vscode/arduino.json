@@ -1,7 +1,7 @@
 {
-    "configuration": "cpu=atmega328old",
+    "configuration": "cpu=atmega168",
     "board": "arduino:avr:nano",
-    "port": "COM8",
+    "port": "COM5",
     "sketch": "Printer.ino",
     "programmer": "arduino:avrisp"
 }
