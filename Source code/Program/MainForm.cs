@@ -344,6 +344,7 @@ namespace Braille_plotter
                 SerialPort printer = new SerialPort(printerPort, 9600);
                 printer.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                 printer.Open();
+                Thread.Sleep(1500);
                 if (printer.IsOpen)
                 {
                     MessageBox.Show("Printer verbonden. Print begint nu!", "Braille printer");
