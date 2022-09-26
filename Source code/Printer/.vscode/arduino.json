@@ -2,6 +2,6 @@
     "configuration": "cpu=atmega168",
     "board": "arduino:avr:nano",
     "port": "COM5",
-    "sketch": "Printer.ino",
+    "sketch": "Test files\\Test\\Test.ino",
     "programmer": "arduino:avrisp"
 }

@@ -5,9 +5,9 @@ void setup(){
 
 void loop(){
     Serial.println("Klaar voor gebruik");
-    tone(6, 523, 150);
+    tone(6, noteC5, 150);
     wait(200);
-    tone(6, 292, 200);
+    tone(6, noteD4, 200);
     delay(2000);
 
     Serial.println("Noodstop ingedrukt!");

@@ -49,14 +49,15 @@ void wait(uint64_t delayTime)
 		// If button S triggered:
 		if (!digitalRead(8))
 		{
-			// Stop the program:
+			// Send "Stop":
 			Serial.write(0x32);
+
+			// Turn off power from stepper:
 			stepperY.empower(false);
 
-			tone(6, noteC3, 300);
-            wait(500000);
-            tone(6, noteC3, 600);
+			signal(emergencyStop);
 
+			// Stop everything:
 			while (true)
 				;
 		}
@@ -69,10 +70,11 @@ void setup()
 	for (BraillePin braillePin : braillePins)
 		braillePin.initialize();
 
-	pinMode(2, OUTPUT); // feed step
+	pinMode(2, OUTPUT);		  // feed step
 	pinMode(3, INPUT_PULLUP); // limit switch
-	pinMode(4, OUTPUT); // carr step
-	pinMode(5, OUTPUT); // carr dir
+	pinMode(4, OUTPUT);		  // carr step
+	pinMode(5, OUTPUT);		  // carr dir
+	pinMode(6, OUTPUT);		  // speaker
 	pinMode(7, INPUT_PULLUP); // button F
 	pinMode(8, INPUT_PULLUP); // button S
 	pinMode(9, INPUT_PULLUP); // paper sensor
@@ -82,79 +84,64 @@ void setup()
 	while (!Serial)
 		;
 
-		tone(6, noteC5, 150);
-    wait(200000);
-    tone(6, noteD4, 200);
-    wait(200000);
+	signal(boot);
 }
 
 void loop()
 {
-	while (true)
+	if (activeState == transmitting)
 	{
-		if (activeState == transmitting)
+		Serial.write(0x31);
+		for (uint8_t i = 0; i < 32; i++)
 		{
-			Serial.write(0x31);
-			for (uint8_t i = 0; i < 32; i++)
+			while (!Serial.available())
 			{
-				while (!Serial.available())
-				{
-					wait(50000);
-				}
-
-				buffer[i] = Serial.read();
-
-				if (buffer[i] >= 0b01000000)
-				{
-					activeState = printing;
-					break;
-				}
-			}
-		}
-		else
-		{
-			// Home if not yet homed:
-			stepperX.home();
-
-			// Check if paper is present:
-			if (!digitalRead(9))
-				stepperY.nextPaper();
-
-			// Print entire line:
-			for (uint8_t i : buffer)
-			{
-				if (buffer[i] < 0b01000000)
-				{
-					// Print single char:
-					if (buffer[i] != 0)
-						printChar(buffer[i]);
-
-					// Move to next char:
-					if (buffer[i + 1] < 0b01000000)
-					{
-						stepperX.homed = false;
-						stepperX.takeStep(480, 150);
-					}
-				}
-				else
-				{
-					break;
-				}
+				wait(50000);
 			}
 
-			// Move carriage to 0-position:
-			stepperX.home();
+			buffer[i] = Serial.read();
 
-			// Next line:
-			stepperY.empower(true);
-			stepperY.takeStep(1300, 100);
-			stepperY.empower(false);
-
-			// Empty buffer:
-			memset(buffer, 0, sizeof(buffer));
-
-			// Ready to receive new line:
-			activeState = transmitting;
+			if (buffer[i] >= 0b01000000)
+			{
+				activeState = printing;
+				break;
+			}
 		}
+	}
+	else // activeState == printing
+	{
+		stepperX.home();
+
+		if (!digitalRead(9)) // paper sensor
+			stepperY.nextPaper();
+
+		for (uint8_t i : buffer)
+		{
+			if (buffer[i] < 0b01000000)
+			{
+				if (buffer[i] != 0)
+					printChar(buffer[i]);
+
+				if (buffer[i + 1] < 0b01000000)
+				{
+					stepperX.homed = false;
+					stepperX.takeStep(480, 150);
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		stepperX.home();
+
+		stepperY.empower(true);
+		stepperY.takeStep(1300, 100);
+		stepperY.empower(false);
+
+		memset(buffer, 0, sizeof(buffer));
+
+		activeState = transmitting;
 	}
 }

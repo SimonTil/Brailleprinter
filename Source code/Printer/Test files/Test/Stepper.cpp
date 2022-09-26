@@ -70,11 +70,8 @@ void Stepper::home()
 
 void Stepper::nextPaper()
 {
-    tone(6, noteB3, 150);
-        wait(200000);
-        tone(6, noteB3, 150);
-        wait(200000);
-        tone(6, noteA3, 200);
+    signal(noPaper);
+
     // Turn on stepper motor:
     this->empower(true);
 
@@ -82,9 +79,7 @@ void Stepper::nextPaper()
     while (!digitalRead(9))
         this->takeStep(1, 100);
 
-        tone(6, noteA3, 200);
-        wait(150000);
-        tone(6, noteB3, 200);
+    signal(newPaperDetected);
 
     // Feed in:
     this->takeStep(4340, 100);
@@ -93,7 +88,8 @@ void Stepper::nextPaper()
     this->empower(false);
 }
 
-void Stepper::empower(bool turnOn){
+void Stepper::empower(bool turnOn)
+{
     digitalWrite(this->enPin, !turnOn);
     wait(200000);
 }
